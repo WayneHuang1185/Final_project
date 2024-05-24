@@ -13,7 +13,7 @@
    [Player function]
 */
 Elements *New_Player(int label)
-{   
+{  
     Player *pDerivedObj = (Player *)malloc(sizeof(Player));
     Elements *pObj = New_Elements(label);
     // setting derived object member
@@ -28,15 +28,18 @@ Elements *New_Player(int label)
     // initial the geometric information of Player
     memset(pDerivedObj->skill_level, 0, sizeof(int));
     strcpy(pDerivedObj->name,"Wayne");
+    for(int i=0;i<10;i++){
+        pDerivedObj->skill_level[i]=0;
+    }
     pDerivedObj->level=1;
-    pDerivedObj->move_speed=5;
-    pDerivedObj->bullet_speed=10;
-    pDerivedObj->bullet_damage=20;
-    pDerivedObj->bullet_recovery=300;
+    pDerivedObj->move_speed=2;
+    pDerivedObj->bullet_speed=1;
+    pDerivedObj->bullet_damage=30;
+    pDerivedObj->bullet_reload=300;
     pDerivedObj->hp_max=300;
-    pDerivedObj->hp_recovery=30;
-    pDerivedObj->mp_max=300;
-    pDerivedObj->mp_recovery=10;
+    pDerivedObj->hp_recovery=5;
+    pDerivedObj->mp_max=150;
+    pDerivedObj->mp_recovery=5;
     pDerivedObj->exp=0;
     pDerivedObj->sp=0;
     //
@@ -72,60 +75,61 @@ Elements *New_Player(int label)
     moveSpeed,
     bulletSpeed,
     bulletDamage,
-    bulletRecovery,
+    bulletReload,
     hpRecovery,
     mpRecovery,
     hpMax,
     mpMax,
 */
-void _Player_sp_updata(Elements *const ele){
-    Player *chara = ((Player *)(ele->pDerivedObj));
+void _Player_sp_update(Elements *const ele){
+    Player* chara=((Player*)(ele->pDerivedObj));
     if(chara->sp>0){
         chara->update_change=true;
-        if(key_state[ALLEGRO_KEY_PAD_1]){
+        
+        if(key_state[ALLEGRO_KEY_1]){
            if(chara->skill_level[moveSpeed]<6){
                 chara->skill_level[moveSpeed]+=1;
                 chara->sp-=1;
            }
         }
-        else if(key_state[ALLEGRO_KEY_PAD_2]){
-           if(chara->skill_level[bulletSpeed]<10){
+        else if(key_state[ALLEGRO_KEY_2]){
+           if(chara->skill_level[bulletSpeed]<9){
                 chara->skill_level[bulletSpeed]+=1;
                 chara->sp-=1;
             }   
         }
-        else if(key_state[ALLEGRO_KEY_PAD_3]){
-           if(chara->skill_level[bulletDamage]<10){
+        else if(key_state[ALLEGRO_KEY_3]){
+           if(chara->skill_level[bulletDamage]<9){
                 chara->skill_level[bulletDamage]+=1;
                 chara->sp-=1;
             }   
         }
-        else if(key_state[ALLEGRO_KEY_PAD_4]){
-           if(chara->skill_level[bulletRecovery]<10){
-                chara->skill_level[bulletRecovery]+=1;
+        else if(key_state[ALLEGRO_KEY_4]){
+           if(chara->skill_level[bulletReload]<9){
+                chara->skill_level[bulletReload]+=1;
                 chara->sp-=1;
             }   
         }
-        else if(key_state[ALLEGRO_KEY_PAD_5]){
-           if(chara->skill_level[hpRecovery]<10){
+        else if(key_state[ALLEGRO_KEY_5]){
+           if(chara->skill_level[hpRecovery]<9){
                 chara->skill_level[hpRecovery]+=1;
                 chara->sp-=1;
             }   
         }
-        else if(key_state[ALLEGRO_KEY_PAD_6]){
-           if(chara->skill_level[mpRecovery]<10){
+        else if(key_state[ALLEGRO_KEY_6]){
+           if(chara->skill_level[mpRecovery]<9){
                 chara->skill_level[mpRecovery]+=1;
                 chara->sp-=1;
             }   
         }
-        else if(key_state[ALLEGRO_KEY_PAD_7]){
-           if(chara->skill_level[hpMax]<10){
+        else if(key_state[ALLEGRO_KEY_7]){
+           if(chara->skill_level[hpMax]<9){
                 chara->skill_level[hpMax]+=1;
                 chara->sp-=1;
             }   
         }
-        else if(key_state[ALLEGRO_KEY_PAD_8]){
-           if(chara->skill_level[mpMax]<10){
+        else if(key_state[ALLEGRO_KEY_8]){
+           if(chara->skill_level[mpMax]<9){
                 chara->skill_level[mpMax]+=1;
                 chara->sp-=1;
             }   
@@ -133,6 +137,7 @@ void _Player_sp_updata(Elements *const ele){
         else{
             chara->update_change=false;
         }
+        
 
     }
 
@@ -142,6 +147,7 @@ void Player_update(Elements *const ele)
     // use the idea of finite state machine to deal with different state
     Player *chara = ((Player *)(ele->pDerivedObj));
     chara->timer+=5;
+    chara->exp+=50;
     int dx=chara->x,dy=chara->y;
     if (chara->wlk_state == p_STOP)
     {
@@ -173,7 +179,7 @@ void Player_update(Elements *const ele)
     {
         if (chara->atk_state == p_FIRE)
         {    
-            if (chara->timer >= chara->bullet_recovery){
+            if (chara->timer >= chara->bullet_reload){
                 double mx=mouse.x,my=mouse.y;
                 double angle = atan2(my-chara->y,mx-chara->x);
                 Elements *bullet;
@@ -181,7 +187,7 @@ void Player_update(Elements *const ele)
                 _Player_update_position(ele, -chara->bullet_speed * cos(angle) , -chara->bullet_speed  * sin(angle));
                 _Register_elements(scene,bullet);
                 chara->atk_state = p_CEASE_FIRE;
-                chara->timer%=chara->bullet_recovery;
+                chara->timer%=chara->bullet_reload;
             }
             else{
                 chara->atk_state = p_CEASE_FIRE; 
@@ -219,9 +225,10 @@ void Player_update(Elements *const ele)
     }
     if(chara->wlk_state != p_MOVE && chara->wlk_state != p_FIRE)
         chara->wlk_state = p_STOP;
+    /*
     if(key_state[ALLEGRO_KEY_TILDE])
-        chara->show_information=true;
-    _Player_sp_updata(ele);
+        chara->show_information=true;*/
+    _Player_sp_update(ele);
     chara->angle=atan2(mouse.y- chara->y,mouse.x-chara->x);
 }
 void Player_draw(Elements *const ele)

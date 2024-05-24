@@ -16,7 +16,7 @@ typedef enum SkillType
     moveSpeed,
     bulletSpeed,
     bulletDamage,
-    bulletRecovery,
+    bulletReload,
     hpRecovery,
     mpRecovery,
     hpMax,
@@ -38,7 +38,7 @@ typedef struct _Player
     int move_speed; 
     int bullet_speed;
     int bullet_damage;
-    int bullet_recovery;
+    int bullet_reload;
     int hp_recovery;
     int mp_recovery;
     int hp_max;
@@ -67,7 +67,8 @@ typedef struct _Player
 
 
 Elements *New_Player(int label);
-void _Player_update_position(Elements *const self, int dx, int dy);
+void _Player_update_position(Elements *const ele, int dx, int dy);
+void _Player_sp_update(Elements *const ele);
 void Player_update(Elements *const self);
 void Player_interact(Elements *const self, Elements *const target);
 void Player_draw(Elements *const self);
