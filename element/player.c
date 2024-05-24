@@ -8,11 +8,12 @@
 #include <allegro5/allegro_primitives.h>
 #include<math.h>
 #include <stdio.h>
+#include<string.h>
 /*
    [Player function]
 */
-Elements *New_Player(int label,int exp)
-{
+Elements *New_Player(int label)
+{   
     Player *pDerivedObj = (Player *)malloc(sizeof(Player));
     Elements *pObj = New_Elements(label);
     // setting derived object member
@@ -25,27 +26,41 @@ Elements *New_Player(int label,int exp)
     al_attach_sample_instance_to_mixer(pDerivedObj->atk_Sound, al_get_default_mixer());
 
     // initial the geometric information of Player
+    memset(pDerivedObj->skill_level, 0, sizeof(int));
+    strcpy(pDerivedObj->name,"Wayne");
+    pDerivedObj->level=1;
+    pDerivedObj->move_speed=5;
+    pDerivedObj->bullet_speed=10;
+    pDerivedObj->bullet_damage=20;
+    pDerivedObj->bullet_recovery=300;
+    pDerivedObj->hp_max=300;
+    pDerivedObj->hp_recovery=30;
+    pDerivedObj->mp_max=300;
+    pDerivedObj->mp_recovery=10;
+    pDerivedObj->exp=0;
+    pDerivedObj->sp=0;
+    //
     pDerivedObj->width = al_get_bitmap_width(pDerivedObj->img);
     pDerivedObj->height = al_get_bitmap_height(pDerivedObj->img);
     pDerivedObj->timer=0;
-    pDerivedObj->rpm=30;
-    pDerivedObj->heart=300;
     pDerivedObj->x = 10;
     pDerivedObj->y = 10;
-    pDerivedObj->velocity=5;
+    pDerivedObj->font = al_load_ttf_font("assets/font/pirulen.ttf", 20, 0);
     pDerivedObj->angle=atan2(mouse.y- pDerivedObj->y,mouse.x-pDerivedObj->x);
     pDerivedObj->hitbox = New_Rectangle(pDerivedObj->x,
                                         pDerivedObj->y,
                                         pDerivedObj->x + pDerivedObj->width,
                                         pDerivedObj->y + pDerivedObj->height);
     pDerivedObj->dir = false; // true: face to right, false: face to left
+    pDerivedObj->show_information=false;
+    pDerivedObj->update_change=false;
     // initial the animation component
     pObj->inter_obj[pObj->inter_len++] = Monster_L;
     pDerivedObj->wlk_state = p_STOP;
-    pDerivedObj->atk_state=CEASE_FIRE;
-    pDerivedObj->new_shot= 0;
-    pDerivedObj->exp=exp;
+    pDerivedObj->atk_state = p_CEASE_FIRE;
+    pDerivedObj->new_shot = 0;
     pObj->pDerivedObj = pDerivedObj;
+    
     // setting derived object function
     pObj->Draw = Player_draw;
     pObj->Update = Player_update;
@@ -53,91 +68,170 @@ Elements *New_Player(int label,int exp)
     pObj->Destroy = Player_destory;
     return pObj;
 }
+/*
+    moveSpeed,
+    bulletSpeed,
+    bulletDamage,
+    bulletRecovery,
+    hpRecovery,
+    mpRecovery,
+    hpMax,
+    mpMax,
+*/
+void _Player_sp_updata(Elements *const ele){
+    Player *chara = ((Player *)(ele->pDerivedObj));
+    if(chara->sp>0){
+        chara->update_change=true;
+        if(key_state[ALLEGRO_KEY_PAD_1]){
+           if(chara->skill_level[moveSpeed]<6){
+                chara->skill_level[moveSpeed]+=1;
+                chara->sp-=1;
+           }
+        }
+        else if(key_state[ALLEGRO_KEY_PAD_2]){
+           if(chara->skill_level[bulletSpeed]<10){
+                chara->skill_level[bulletSpeed]+=1;
+                chara->sp-=1;
+            }   
+        }
+        else if(key_state[ALLEGRO_KEY_PAD_3]){
+           if(chara->skill_level[bulletDamage]<10){
+                chara->skill_level[bulletDamage]+=1;
+                chara->sp-=1;
+            }   
+        }
+        else if(key_state[ALLEGRO_KEY_PAD_4]){
+           if(chara->skill_level[bulletRecovery]<10){
+                chara->skill_level[bulletRecovery]+=1;
+                chara->sp-=1;
+            }   
+        }
+        else if(key_state[ALLEGRO_KEY_PAD_5]){
+           if(chara->skill_level[hpRecovery]<10){
+                chara->skill_level[hpRecovery]+=1;
+                chara->sp-=1;
+            }   
+        }
+        else if(key_state[ALLEGRO_KEY_PAD_6]){
+           if(chara->skill_level[mpRecovery]<10){
+                chara->skill_level[mpRecovery]+=1;
+                chara->sp-=1;
+            }   
+        }
+        else if(key_state[ALLEGRO_KEY_PAD_7]){
+           if(chara->skill_level[hpMax]<10){
+                chara->skill_level[hpMax]+=1;
+                chara->sp-=1;
+            }   
+        }
+        else if(key_state[ALLEGRO_KEY_PAD_8]){
+           if(chara->skill_level[mpMax]<10){
+                chara->skill_level[mpMax]+=1;
+                chara->sp-=1;
+            }   
+        }
+        else{
+            chara->update_change=false;
+        }
+
+    }
+
+}
 void Player_update(Elements *const ele)
 {    
     // use the idea of finite state machine to deal with different state
     Player *chara = ((Player *)(ele->pDerivedObj));
     chara->timer+=5;
+    int dx=chara->x,dy=chara->y;
     if (chara->wlk_state == p_STOP)
     {
-        if (key_state[ALLEGRO_KEY_SPACE])
-        {
-            chara->atk_state=FIRE;
-        }
+        
         if (key_state[ALLEGRO_KEY_A])
         {
             chara->dir = false;
             chara->wlk_state = p_MOVE;
         }
-        else if (key_state[ALLEGRO_KEY_D])
+        if (key_state[ALLEGRO_KEY_D])
         {
             chara->dir = true;
             chara->wlk_state = p_MOVE;
         }
-        else if (key_state[ALLEGRO_KEY_W]){
-            chara->wlk_state=p_MOVE;
-        }
-        else if(key_state[ALLEGRO_KEY_S]){
-            chara->wlk_state=p_MOVE;
-        }
-        else
+        if (key_state[ALLEGRO_KEY_W])
         {
-            chara->wlk_state = p_STOP;
+            chara->wlk_state=p_MOVE;
+        }
+        if(key_state[ALLEGRO_KEY_S])
+        {
+            chara->wlk_state=p_MOVE;
+        }
+        if (key_state[ALLEGRO_KEY_SPACE] || mouse_state[1])
+        {
+            chara->atk_state = p_FIRE;
         }
     }
-    else if (chara->wlk_state == p_MOVE)
+    else if (chara->wlk_state == p_MOVE || chara->wlk_state == p_FIRE )
     {
-        if (key_state[ALLEGRO_KEY_SPACE])
-        {
-            chara->atk_state = ATK;
-        }
-        if (key_state[ALLEGRO_KEY_A])
-        {
-            chara->dir = false;
-            _Player_update_position(ele, -chara->velocity, 0);
-            chara->wlk_state = p_MOVE;
+        if (chara->atk_state == p_FIRE)
+        {    
+            if (chara->timer >= chara->bullet_recovery){
+                double mx=mouse.x,my=mouse.y;
+                double angle = atan2(my-chara->y,mx-chara->x);
+                Elements *bullet;
+                bullet=New_Bullet(Bullet_L,chara->x,chara->y,angle,2*chara->bullet_speed,chara->bullet_damage);
+                _Player_update_position(ele, -chara->bullet_speed * cos(angle) , -chara->bullet_speed  * sin(angle));
+                _Register_elements(scene,bullet);
+                chara->atk_state = p_CEASE_FIRE;
+                chara->timer%=chara->bullet_recovery;
+            }
+            else{
+                chara->atk_state = p_CEASE_FIRE; 
+            }
         }
         
-        else if (key_state[ALLEGRO_KEY_D])
+        if (key_state[ALLEGRO_KEY_A])
         {
-            chara->dir = true;
-            _Player_update_position(ele, chara->velocity, 0);
+            chara->dir = false;
+            _Player_update_position(ele, -chara->move_speed, 0);
             chara->wlk_state = p_MOVE;
         }
-        else if (key_state[ALLEGRO_KEY_W]){
+        if (key_state[ALLEGRO_KEY_D])
+        {
+            chara->dir = true;
+            _Player_update_position(ele, chara->move_speed, 0);
+            chara->wlk_state = p_MOVE;
+        }
+        if (key_state[ALLEGRO_KEY_W]){
             chara->wlk_state=p_MOVE;
-            _Player_update_position(ele, 0,-chara->velocity);
+            _Player_update_position(ele, 0,-chara->move_speed);
         }
-        else if(key_state[ALLEGRO_KEY_S]){
+        if(key_state[ALLEGRO_KEY_S]){
             chara->wlk_state=p_MOVE;
-            _Player_update_position(ele, 0,chara->velocity);
+            _Player_update_position(ele, 0,chara->move_speed);
         }
-        else{
-            chara->wlk_state=p_STOP;
+        if (key_state[ALLEGRO_KEY_SPACE] || mouse_state[1])
+        {
+            chara->atk_state = p_FIRE;
         }
+
     }
-    if (chara->atk_state == FIRE)
-    {    
-        if(chara->timer>=chara->rpm){
-         double mx=mouse.x,my=mouse.y;
-         double angle=atan2(my-chara->y,mx-chara->x);
-         Elements *bullet;
-         bullet=New_Bullet(Bullet_L,chara->x,chara->y,angle,2*chara->velocity,20);
-         _Register_elements(scene,bullet);
-         chara->atk_state=CEASE_FIRE;
-         chara->timer%=chara->rpm;
-        }
-        else{
-           chara->atk_state = CEASE_FIRE; 
-        }
+    if((chara->x-dx)!=0 && (chara->y-dy)!=0){
+       _Player_update_position(ele,-(chara->x-dx)/2,-(chara->y-dy)/2);
     }
+    if(chara->wlk_state != p_MOVE && chara->wlk_state != p_FIRE)
+        chara->wlk_state = p_STOP;
+    if(key_state[ALLEGRO_KEY_TILDE])
+        chara->show_information=true;
+    _Player_sp_updata(ele);
     chara->angle=atan2(mouse.y- chara->y,mouse.x-chara->x);
 }
 void Player_draw(Elements *const ele)
 {
     // with the state, draw corresponding image
     Player *Obj = ((Player *)(ele->pDerivedObj));
+    int w = al_get_text_width(Obj->font, Obj->name)/2+5;
     al_draw_rotated_bitmap(Obj->img,Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
+    al_draw_filled_rectangle(Obj->x-w, Obj->y-Obj->height/2, Obj->x+w, Obj->y-Obj->height/2+20, al_map_rgba(0,0,0,100));
+    al_draw_text(Obj->font, al_map_rgb(255,255,255), Obj->x, Obj->y - Obj->height/2, ALLEGRO_ALIGN_CENTRE, Obj->name);
 }
 void Player_destory(Elements *const ele)
 {

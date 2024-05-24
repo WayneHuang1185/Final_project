@@ -21,7 +21,8 @@ typedef enum EleType
     Bullet_L,
     Monster_L,
     Drops_L,
-    Player_L
+    Player_L,
+    PlayerManager_L
 }EleType;
 typedef struct _GameScene
 {
