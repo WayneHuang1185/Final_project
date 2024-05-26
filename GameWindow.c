@@ -9,7 +9,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>f
+#include <allegro5/allegro_ttf.h>
 // include scene and following component
 #include "scene/sceneManager.h"
 

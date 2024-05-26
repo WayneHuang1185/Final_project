@@ -21,9 +21,9 @@ Elements *New_Bullet(int label,int x,int y,double radius, int velocity,int damag
     pDerivedObj->exist=500;
     pDerivedObj->timer=0;
     pDerivedObj->img = al_load_bitmap("assets/image/bullet/b5.png");
-    pDerivedObj->height=al_get_bitmap_height(pDerivedObj->img);
     pDerivedObj->width=al_get_bitmap_width(pDerivedObj->img);
-    pDerivedObj->r=(pDerivedObj->height+pDerivedObj->width)/2;
+    pDerivedObj->height=al_get_bitmap_height(pDerivedObj->img);
+    pDerivedObj->r=(scaled)/2;
     pDerivedObj->hitbox = New_Circle(pDerivedObj->x,
                                      pDerivedObj->y,
                                      pDerivedObj->r);                     
@@ -61,6 +61,7 @@ void Bullet_interact(Elements *const self, Elements *const ele){
         if(mon->hitbox->overlap(Obj->hitbox,mon->hitbox)){
             self->dele=true;
         }
+
     }
     else if(ele->label == Player_L){
         if (Obj->x < 0 - Obj->width)

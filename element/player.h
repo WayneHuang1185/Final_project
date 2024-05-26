@@ -7,6 +7,7 @@
 #include "../shapes/Shape.h"
 #include "../algif5/src/algif.h"
 #include <allegro5/allegro_font.h>
+#include"../global.h"
 /*
    [Player object]
 */
@@ -39,8 +40,11 @@ typedef struct _Player
     int bullet_speed;
     int bullet_damage;
     int bullet_reload;
+    int bullet_mp_consumption;
     int hp_recovery;
     int mp_recovery;
+    int hp;
+    int mp;
     int hp_max;
     int mp_max;
     int exp;
@@ -48,11 +52,17 @@ typedef struct _Player
     int sp;
     //
     int x, y;     
-    int timer; 
+    int recover_time;
+    int sp_recover_time;
+    int timer_for_sp;
+    int timer_for_bullet;
+    int timer_for_mphp;
+    int total_timer;
     int width, height; // the width and height of image
     bool dir;    
     bool update_change;
     bool show_information;
+    bool show_information_permanent;
     double angle;    
     int wlk_state;  
     int atk_state;      // the state of Player
@@ -68,7 +78,9 @@ typedef struct _Player
 
 Elements *New_Player(int label);
 void _Player_update_position(Elements *const ele, int dx, int dy);
+void _Player_mphp_recover(Elements *const ele);
 void _Player_sp_update(Elements *const ele);
+void _Player_limit_timer(Elements *const ele);
 void Player_update(Elements *const self);
 void Player_interact(Elements *const self, Elements *const target);
 void Player_draw(Elements *const self);

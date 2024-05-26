@@ -9,8 +9,8 @@
 typedef struct _Bullet
 {
     int x, y, r;  
+    int height,width;
     float vx,vy;
-    int width,height;
     int damage;
     int exist;
     int timer;
