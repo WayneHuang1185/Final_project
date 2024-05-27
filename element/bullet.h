@@ -8,7 +8,7 @@
 */
 typedef struct _Bullet
 {
-    int x, y, r;  
+    double x, y, r;  
     int height,width;
     float vx,vy;
     int damage;
@@ -19,7 +19,7 @@ typedef struct _Bullet
         // the position of image
     Shape *hitbox; // the hitbox of object
 } Bullet;
-Elements *New_Bullet(int label,int x,int y,double radius, int velocity,int damage);
+Elements *New_Bullet(int label,double x,double y,double radius, int velocity,int damage);
 void Bullet_update(Elements *const ele);
 void Bullet_interact(Elements *const, Elements *const);
 void Bullet_draw(Elements *const ele);

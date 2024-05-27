@@ -51,14 +51,15 @@ typedef struct _Player
     int level;
     int sp;
     //
-    int x, y;     
+    double x, y;  
+    int height,width;   
     int recover_time;
     int sp_recover_time;
-    int timer_for_sp;
+    int anime_time;
     int timer_for_bullet;
     int timer_for_mphp;
     int total_timer;
-    int width, height; // the width and height of image
+    int r; // the width and height of image
     bool dir;    
     bool update_change;
     bool show_information;
@@ -68,7 +69,6 @@ typedef struct _Player
     int atk_state;      // the state of Player
     int new_shot;
     int anime;      // counting the time of animation
-    int anime_time; // indicate how long the animation
     Shape *hitbox; // the hitbox of object
     ALLEGRO_BITMAP* img; // gif for each state. 0: stop, 1: move, 2:attack
     ALLEGRO_SAMPLE_INSTANCE *atk_Sound;
@@ -77,7 +77,7 @@ typedef struct _Player
 
 
 Elements *New_Player(int label);
-void _Player_update_position(Elements *const ele, int dx, int dy);
+void _Player_update_position(Elements *const ele, double dx, double dy);
 void _Player_mphp_recover(Elements *const ele);
 void _Player_sp_update(Elements *const ele);
 void _Player_limit_timer(Elements *const ele);

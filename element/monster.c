@@ -2,7 +2,7 @@
 #include"bullet.h"
 #include"player.h"
 #include"../global.h"
-#include"../shapes/Circle.h"
+#include"../shapes/Rectangle.h"
 #include "../shapes/Shape.h"
 #include "../shapes/Rectangle.h"
 #include <allegro5/allegro_primitives.h>
@@ -25,10 +25,10 @@ Elements *New_Monster(int label){
     pDerivedObj->img = al_load_bitmap("assets/image/monster.png");
     pDerivedObj->height=al_get_bitmap_height(pDerivedObj->img);
     pDerivedObj->width=al_get_bitmap_width(pDerivedObj->img);
-    pDerivedObj->hitbox = New_Rectangle(pDerivedObj->x,
-                                        pDerivedObj->y,
-                                        pDerivedObj->x + pDerivedObj->width,
-                                        pDerivedObj->y + pDerivedObj->height);
+    pDerivedObj->hitbox = New_Rectangle(pDerivedObj->x-pDerivedObj->width/2,
+                                        pDerivedObj->y-pDerivedObj->height/2,
+                                        pDerivedObj->x+pDerivedObj->width/2,
+                                        pDerivedObj->y+pDerivedObj->height/2);
     pObj->inter_obj[pObj->inter_len++] = Bullet_L;
     pObj->inter_obj[pObj->inter_len++] = Player_L;
     // setting derived object function
@@ -40,7 +40,7 @@ Elements *New_Monster(int label){
     return pObj;
     
 }
-void _Monster_update_postion(Elements *const self,int dx, int dy){
+void _Monster_update_postion(Elements *const self,double dx, double dy){
     Monster *mon= ((Monster *)(self->pDerivedObj));
     mon->x += dx;
     mon->y += dy;
@@ -51,6 +51,7 @@ void _Monster_update_postion(Elements *const self,int dx, int dy){
 void Monster_update(Elements *const self)
 {   
     Monster *Obj = ((Monster*)(self->pDerivedObj));
+    printf("monster_x:%f monster_y:%f\n",Obj->x,Obj->y);
     printf("%d\n",Obj->hp);
     Obj->hp_timer+=5;
     Obj->atk_timer+=5;
@@ -59,14 +60,13 @@ void Monster_update(Elements *const self)
         Obj->hp=(Obj->hp > Obj->hp_max)? Obj->hp_max : Obj->hp;
         Obj->hp_timer%= Obj->recovery;
     }
-
 }
 void Monster_interact(Elements *const self, Elements *const ele){
     Monster *mon = ((Monster *)(self->pDerivedObj));
     if(ele->label == Player_L){
        Player*pl=((Player*)(ele->pDerivedObj));
-       double angle=atan2(pl->y-mon->y,pl->x-mon->x);
-       int dx=mon->move_speed*cos(angle),dy=mon->move_speed*sin(angle);
+       double angle=atan2(pl->y - mon->y, pl->x - mon->x);
+       double dx=mon->move_speed*cos(angle),dy=mon->move_speed*sin(angle);
        _Monster_update_postion(self,dx,dy);
     }
     if(ele->label == Bullet_L){
@@ -85,7 +85,9 @@ void Monster_interact(Elements *const self, Elements *const ele){
 }
 void Monster_draw(Elements *const ele){
     Monster *Obj = ((Monster *)(ele->pDerivedObj));
-    al_draw_bitmap(Obj->img,Obj->x,Obj->y,0);
+    al_draw_rectangle(Obj->x , Obj->y ,Obj->x - Obj->width, Obj->y - Obj->height, al_map_rgb(255,255,255),0);
+    al_draw_bitmap(Obj->img,Obj->x - Obj->width/2, Obj->y - Obj->height/2,0);
+
 }
 void Monster_destory(Elements *const ele){
     Monster *Obj = ((Monster *)(ele->pDerivedObj));

@@ -2,6 +2,8 @@
 #include"../global.h"
 #include"../shapes/Circle.h"
 #include "../shapes/Shape.h"
+#include "player.h"
+#include "monster.h"
 #include <allegro5/allegro_primitives.h>
 Elements *New_Ball(int label){
     Ball *pDerivedObj = (Ball *)malloc(sizeof(Ball));
@@ -15,8 +17,8 @@ Elements *New_Ball(int label){
                                      pDerivedObj->y,
                                      pDerivedObj->r);
     // setting the interact object
-    pObj->inter_obj[pObj->inter_len++] = Tree_L;
-    pObj->inter_obj[pObj->inter_len++] = Character_L;
+    pObj->inter_obj[pObj->inter_len++] = Player_L;
+    pObj->inter_obj[pObj->inter_len++] = Monster_L;
     // setting derived object function
     pObj->pDerivedObj = pDerivedObj;
     pObj->Update = Ball_update;
@@ -38,28 +40,27 @@ void Ball_interact(Elements *const self, Elements *const ele){
 
     Ball *Obj = ((Ball *)(self->pDerivedObj));
    // printf("-2\n");
-    if (ele->label == Character_L)
+    if (ele->label == Player_L)
     {   
-        Character* chara=((Character*)(ele->pDerivedObj));
+        Player* chara=((Player*)(ele->pDerivedObj));
         if(chara->hitbox->overlap(chara->hitbox,Obj->hitbox)){
-            Obj->c=al_map_rgb(0,255,0);
-            Obj->in=Character_L;
+            Obj->c=al_map_rgb(255,0,0);
+            Obj->in=Player_L;
         }
-        else if(Obj->in == Character_L){
+        else if(Obj->in == Player_L){
            // printf("-4\n");
             Obj->c=al_map_rgb(255,0,0);
         }
     }
-
-    else if (ele->label == Tree_L)
+    else if (ele->label == Monster_L)
      {
-         Tree * tree=((Tree*)(ele->pDerivedObj));
+         Monster * tree=((Monster*)(ele->pDerivedObj));
          if(tree->hitbox->overlap(tree->hitbox,Obj->hitbox)){
-             Obj->c=al_map_rgb(0,0,255);
-             Obj->in=Tree_L;
+             Obj->c=al_map_rgb(0,255,0);
+             Obj->in=Monster_L;
          }
-         else if(Obj->in == Tree_L){
-            Obj->c=al_map_rgb(255,0,0);
+         else if(Obj->in == Monster_L){
+            Obj->c=al_map_rgb(0,255,0);
          }
     }
 }
