@@ -25,10 +25,10 @@ Elements *New_Monster(int label){
     pDerivedObj->img = al_load_bitmap("assets/image/monster.png");
     pDerivedObj->height=al_get_bitmap_height(pDerivedObj->img);
     pDerivedObj->width=al_get_bitmap_width(pDerivedObj->img);
-    pDerivedObj->hitbox = New_Rectangle(pDerivedObj->x-pDerivedObj->width/2,
-                                        pDerivedObj->y-pDerivedObj->height/2,
-                                        pDerivedObj->x+pDerivedObj->width/2,
-                                        pDerivedObj->y+pDerivedObj->height/2);
+    pDerivedObj->hitbox = New_Rectangle(pDerivedObj->x,
+                                        pDerivedObj->y,
+                                        pDerivedObj->x+pDerivedObj->width,
+                                        pDerivedObj->y+pDerivedObj->height);
     pObj->inter_obj[pObj->inter_len++] = Bullet_L;
     pObj->inter_obj[pObj->inter_len++] = Player_L;
     // setting derived object function
@@ -64,10 +64,12 @@ void Monster_update(Elements *const self)
 void Monster_interact(Elements *const self, Elements *const ele){
     Monster *mon = ((Monster *)(self->pDerivedObj));
     if(ele->label == Player_L){
-       Player*pl=((Player*)(ele->pDerivedObj));
-       double angle=atan2(pl->y - mon->y, pl->x - mon->x);
-       double dx=mon->move_speed*cos(angle),dy=mon->move_speed*sin(angle);
-       _Monster_update_postion(self,dx,dy);
+        Player*pl=((Player*)(ele->pDerivedObj));
+        if(!mon->hitbox->overlap(mon->hitbox,pl->hitbox)){
+            double angle=atan2(pl->hitbox->center_y(pl->hitbox) - mon->hitbox->center_y(mon->hitbox), pl->hitbox->center_x(pl->hitbox) - mon->hitbox->center_x(mon->hitbox));
+            double dx=mon->move_speed*cos(angle),dy=mon->move_speed*sin(angle);
+            _Monster_update_postion(self,dx,dy);
+        }
     }
     if(ele->label == Bullet_L){
        Bullet *bu=((Bullet*)(ele->pDerivedObj));
@@ -85,8 +87,8 @@ void Monster_interact(Elements *const self, Elements *const ele){
 }
 void Monster_draw(Elements *const ele){
     Monster *Obj = ((Monster *)(ele->pDerivedObj));
-    al_draw_rectangle(Obj->x , Obj->y ,Obj->x - Obj->width, Obj->y - Obj->height, al_map_rgb(255,255,255),0);
-    al_draw_bitmap(Obj->img,Obj->x - Obj->width/2, Obj->y - Obj->height/2,0);
+    al_draw_rectangle(Obj->hitbox->center_x(Obj->hitbox),Obj->hitbox->center_y(Obj->hitbox) ,Obj->hitbox->center_x(Obj->hitbox)+Obj->width,Obj->hitbox->center_y(Obj->hitbox)+Obj->height, al_map_rgb(255,255,255),0);
+    al_draw_bitmap(Obj->img,Obj->hitbox->center_x(Obj->hitbox), Obj->hitbox->center_y(Obj->hitbox),0);
 
 }
 void Monster_destory(Elements *const ele){

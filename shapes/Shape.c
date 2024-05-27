@@ -28,7 +28,7 @@ bool checkOverlap_pc(Point *p, Circle *c)
 
 bool checkOverlap_rr(Rectangle *r1, Rectangle *r2)
 {
-	return !(r1->x2 < r2->x1 || r2->x2 < r1->x1 || r1->y2 < r2->y1 || r2->y2 < r1->y1);
+	return !(r1->x2 <= r2->x1 || r2->x2 <= r1->x1 || r1->y2 <= r2->y1 || r2->y2 <= r1->y1);
 }
 
 bool checkOverlap_rc(Rectangle *r, Circle *c)

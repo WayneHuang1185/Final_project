@@ -58,10 +58,10 @@ Elements *New_Player(int label)
     pDerivedObj->y = 300;
     pDerivedObj->font = al_load_ttf_font("assets/font/pirulen.ttf", 15, 0);
     pDerivedObj->angle=atan2(mouse.y- pDerivedObj->y,mouse.x-pDerivedObj->x);
-    pDerivedObj->hitbox = New_Rectangle( pDerivedObj->x,
-                                      pDerivedObj->y,
-                                      pDerivedObj->x+pDerivedObj->width,
-                                      pDerivedObj->y+pDerivedObj->height
+    pDerivedObj->hitbox = New_Rectangle( pDerivedObj->x-pDerivedObj->width/2,
+                                      pDerivedObj->y-pDerivedObj->height/2,
+                                      pDerivedObj->x+pDerivedObj->width/2,
+                                      pDerivedObj->y+pDerivedObj->height/2
                                     );
     pDerivedObj->dir = false; // true: face to right, false: face to left
     pDerivedObj->show_information=false;
@@ -178,7 +178,7 @@ void Player_update(Elements *const ele)
                 double r = 0.075;
                 double angle = atan2(my-chara->y,mx-chara->x) + (double)(rand() % 200 - 100) / 50 * r;
                 Elements *bullet;
-                bullet=New_Bullet(Bullet_L,chara->x+chara->r*cos(angle),chara->y+chara->r*sin(angle),angle,chara->bullet_speed,chara->bullet_damage);
+                bullet=New_Bullet(Bullet_L,chara->x+chara->width/2+chara->r*cos(angle),chara->y+chara->height/2+chara->r*sin(angle),angle,chara->bullet_speed,chara->bullet_damage);
                 _Player_update_position(ele, -chara->bullet_speed * cos(angle) , -chara->bullet_speed  * sin(angle));
                 _Register_elements(scene,bullet);
                 chara->atk_state = p_CEASE_FIRE;
@@ -265,9 +265,9 @@ void Player_draw(Elements *const ele)
         Player *Obj = ((Player *)(ele->pDerivedObj));
         int w = al_get_text_width(Obj->font, Obj->name)/2+5;
         al_draw_rectangle(Obj->x,Obj->y,Obj->x+Obj->width,Obj->y+Obj->height,al_map_rgb(255,255,255),0);
-        al_draw_rotated_bitmap(Obj->img,Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
-        al_draw_filled_rectangle(Obj->x-w, Obj->y-Obj->height/2, Obj->x+w, Obj->y-Obj->height/2+20, al_map_rgba(0,0,0,100));
-        al_draw_text(Obj->font, al_map_rgb(255,255,255),Obj->x, Obj->y-Obj->height/2, ALLEGRO_ALIGN_CENTRE, Obj->name);
+        al_draw_rotated_bitmap(Obj->img,Obj->width/2,Obj->height/2,Obj->x+Obj->width/2,Obj->y+Obj->height/2,Obj->angle+2.355,0);
+        al_draw_filled_rectangle(Obj->x+w, Obj->y+Obj->height/2, Obj->x+w, Obj->y+Obj->height/2+20, al_map_rgba(0,0,0,100));
+        al_draw_text(Obj->font, al_map_rgb(255,255,255),Obj->x+w, Obj->y-Obj->height/2, ALLEGRO_ALIGN_CENTRE, Obj->name);
         char tmp[50];
         if(Obj->show_information || Obj->show_information_permanent){
             al_draw_filled_rectangle(x_init-5, y_init-5, x_init+18*7+16+5, y_init + 22*7+15+5, al_map_rgba(0,0,0,80));
