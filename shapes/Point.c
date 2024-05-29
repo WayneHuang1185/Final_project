@@ -19,6 +19,7 @@ Shape *New_Point(double x, double y)
     pObj->center_y = Point_center_y;
     pObj->update_center_x = Point_update_center_x;
     pObj->update_center_y = Point_update_center_y;
+    pObj->draw_hitbox = Point_draw_hitbox;
     pObj->getType = Point_getType;
     pObj->pDerivedObj = pDerivedObj;
     return pObj;
@@ -42,6 +43,10 @@ void Point_update_center_y(Shape *const self, int y)
 ShapeType Point_getType()
 {
     return POINT;
+}
+void Point_draw_hitbox(Shape *const self)
+{
+	al_draw_circle(Point_Self(self)->x,Point_Self(self)->y,1,al_map_rgb(255,255,255),0);
 }
 double Point_dist2(Point *p1, Point *p2)
 {

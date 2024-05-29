@@ -2,6 +2,7 @@
 #define SHAPE_H_INCLUDED
 #include <stdlib.h>
 #include <stdbool.h>
+#include <allegro5/allegro_primitives.h>
 
 typedef enum ShapeType
 {
@@ -22,6 +23,7 @@ typedef double (*fptrCenterX)(Shape *const);
 typedef double (*fptrCenterY)(Shape *const);
 typedef void (*fptrUpdateCenterX)(Shape *const, int);
 typedef void (*fptrUpdateCenterY)(Shape *const, int);
+typedef void (*fptrDrawHitbox)(Shape *const);
 typedef ShapeType (*fptrGetType)();
 struct _Shape
 {
@@ -31,6 +33,7 @@ struct _Shape
 	fptrCenterY center_y;
 	fptrUpdateCenterX update_center_x;
 	fptrUpdateCenterY update_center_y;
+	fptrDrawHitbox draw_hitbox;
 	fptrGetType getType;
 };
 Shape *New_Shape();

@@ -6,9 +6,12 @@
 
 
 Elements *New_player_Manager(int label)
-{   
+{   PlayerManager *pDerivedObj = (PlayerManager*)malloc(sizeof(PlayerManager));
     Elements *Obj = New_Elements(label);
+    pDerivedObj->store_exp=0;
+    Obj->pDerivedObj= pDerivedObj;
     Obj->inter_obj[Obj->inter_len++] = Player_L;
+    Obj->inter_obj[Obj->inter_len++] = Monster_L;
     Obj->Draw = playerManager_draw;
     Obj->Update = playerManager_update;
     Obj->Interact = playerManager_interact;
@@ -35,19 +38,21 @@ void playerManager_destory(Elements *const ele)
     mpMax,
     expMax*/
 
+ 
 void playerManager_interact(Elements *const self, Elements *const target) {
     int skill_data[10][8]={ 
         {5,4,3,3,2,2,2,2},//spGain
         {1,2,3,4,5,6,7,9},//moveSpeed
         {2,3,4,5,6,7,8,10},//bulletSpeed
         {30,40,50,60,70,80,90,100},//bulletDamage
-        {300,230,170,120,80,50,30,20},//bulletReload
+        {300,230,170,120,80,50,25,10},//bulletReload
         {5,10,15,20,25,30,35,40},//hpRecovery
         {5,6,7,8,9,10,11,12},//mpRecovery
         {300,400,500,600,700,800,900,1000},//hpMax
-        {150,170,190,210,230,250,270,290},//mpMax
+        {150,300,450,600,800,1000,1200,1600},//mpMax
         {300,600,1000,1400,1800,2300,2800,3200}//expMax
     };
+    PlayerManager *pm=((PlayerManager *)(self->pDerivedObj));
     if(target->label == Player_L){
         Player *pl=((Player*)(target->pDerivedObj));
         if(pl->update_change){
@@ -61,15 +66,25 @@ void playerManager_interact(Elements *const self, Elements *const target) {
             pl->mp_max=skill_data[mpMax][pl->skill_level[mpMax]];
             pl->update_change=false;
         }
+        if(pm->store_exp>0){
+            pl->exp+=pm->store_exp;
+            pm->store_exp=0;
+        }
         if(pl->skill_level[expMax]<10 && pl->exp > skill_data[expMax][pl->skill_level[expMax]]){
+            pl->level+=1;
             pl->sp+=skill_data[spGain][pl->skill_level[spGain]];
             pl->skill_level[expMax]+=1;
             pl->skill_level[spGain]+=1;
         }
-       
+    } 
+    if(target->label == Monster_L){
+        Monster *mon=((Monster*)(target->pDerivedObj));
+        if(mon->hp<=0){
+            target->dele=true;
+            pm->store_exp+=mon->exp;
+        }
 
-    }
-    
+    }   
 }
 
 

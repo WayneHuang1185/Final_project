@@ -17,6 +17,7 @@ double Point_center_x(Shape *const self);
 double Point_center_y(Shape *const self);
 void Point_update_center_x(Shape *const self, int x);
 void Point_update_center_y(Shape *const self, int y);
+void Point_draw_hitbox(Shape *const self);
 ShapeType Point_getType();
 Shape *New_Point(double x, double y);
 double Point_dist2(Point *p1, Point *p2);

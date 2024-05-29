@@ -16,6 +16,7 @@ double Circle_center_x(Shape *const self);
 double Circle_center_y(Shape *const self);
 void Circle_update_center_x(Shape *const self, int x);
 void Circle_update_center_y(Shape *const self, int y);
+void Circle_draw_hitbox(Shape *const self);
 ShapeType Circle_getType();
 Shape *New_Circle(double x, double y, double r);
 ShapeType Circle_getType();

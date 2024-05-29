@@ -5,7 +5,7 @@
 #include <allegro5/allegro_primitives.h>
 #include<math.h>
 #include"Monster.h"
-const int scaled=48;
+const int scaled=40;
 Elements *New_Bullet(int label,double x,double y,double radius, int velocity,int damage){
     Bullet *pDerivedObj = (Bullet *)malloc(sizeof(Bullet));
     Elements *pObj = New_Elements(label);
@@ -13,8 +13,8 @@ Elements *New_Bullet(int label,double x,double y,double radius, int velocity,int
     //printf("velocity:%d",velocity);
     pDerivedObj->x = x;
     pDerivedObj->y = y;
-    pDerivedObj->vx=velocity*cos(radius);
-    pDerivedObj->vy=velocity*sin(radius);
+    pDerivedObj->vx=(int)(velocity*cos(radius));
+    pDerivedObj->vy=(int)(velocity*sin(radius));
     pDerivedObj->rd=radius;
     pDerivedObj->damage=damage;
     pDerivedObj->exist=700;
@@ -71,7 +71,7 @@ void Bullet_interact(Elements *const self, Elements *const ele){
 }
 void Bullet_draw(Elements *const ele){
     Bullet *Obj = ((Bullet *)(ele->pDerivedObj));
-    al_draw_circle(Obj->x,Obj->y,Obj->r,al_map_rgb(255,255,255),0);
+    Obj->hitbox->draw_hitbox(Obj->hitbox);
     al_draw_scaled_rotated_bitmap(Obj->img,Obj->width/2,Obj->height/2,Obj->x,Obj->y,
     scaled/(double)Obj->width,scaled/(double)Obj->height,Obj->rd,0);
 }

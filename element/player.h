@@ -77,6 +77,7 @@ typedef struct _Player
 
 
 Elements *New_Player(int label);
+void _Player_super_power(Elements *const ele);
 void _Player_update_position(Elements *const ele, double dx, double dy);
 void _Player_mphp_recover(Elements *const ele);
 void _Player_sp_update(Elements *const ele);

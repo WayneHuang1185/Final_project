@@ -15,12 +15,12 @@ typedef struct _Monster
     int hp;  
     int hp_max;
     int atk_timer;
-    int hp_timer;
-    int hp_recovery;
     int recovery;
+    int hp_recovery;
     int atk_frequency;
     int width,height;
     int damage;
+    int exp;
     ALLEGRO_BITMAP *img;
         // the position of image
     Shape *hitbox; // the hitbox of object

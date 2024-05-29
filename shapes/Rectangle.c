@@ -1,4 +1,5 @@
 #include "Rectangle.h"
+#include "Rectangle.h"
 /**
  * @see Shape.cpp
  */
@@ -19,6 +20,7 @@ Shape *New_Rectangle(double x1, double y1, double x2, double y2)
 	pObj->center_y = Rectangle_center_y;
 	pObj->update_center_x = Rectangle_update_center_x;
 	pObj->update_center_y = Rectangle_update_center_y;
+	pObj->draw_hitbox = Rectangle_draw_hitbox;
 	pObj->getType = Rectangle_getType;
 	pObj->pDerivedObj = pDerivedObj;
 	return pObj;
@@ -40,6 +42,12 @@ void Rectangle_update_center_y(Shape *const self, int y)
 {
 	Rectangle_Self(self)->y1 += y;
 	Rectangle_Self(self)->y2 += y;
+}
+void Rectangle_draw_hitbox(Shape *const self)
+{
+	al_draw_rectangle(Rectangle_Self(self)->x1,Rectangle_Self(self)->y1,
+					  Rectangle_Self(self)->x2,Rectangle_Self(self)->y2,
+					  al_map_rgb(255,255,255),0);
 }
 ShapeType Rectangle_getType()
 {

@@ -3,10 +3,14 @@
 #include "element.h"
 #include "../scene/gamescene.h"
 #include "player.h"
+#include "monster.h"
 /*
    [player_Manager object]
 */
-
+typedef struct _PlayerManager
+{
+  int store_exp;
+} PlayerManager;
 Elements *New_player_Manager(int label);
 void playerManager_update(Elements *const self);
 void playerManager_interact(Elements *const self, Elements *const target);
