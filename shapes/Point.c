@@ -32,11 +32,11 @@ double Point_center_y(Shape *const self)
 {
     return Point_Self(self)->y;
 }
-void Point_update_center_x(Shape *const self, int x)
+void Point_update_center_x(Shape *const self, double x)
 {
     Point_Self(self)->x += x;
 }
-void Point_update_center_y(Shape *const self, int y)
+void Point_update_center_y(Shape *const self, double y)
 {
     Point_Self(self)->y += y;
 }

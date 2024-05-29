@@ -8,7 +8,7 @@
    [player_Manager object]
 */
 typedef struct _PlayerManager
-{
+{ double pl_x, pl_y;
   int store_exp;
 } PlayerManager;
 Elements *New_player_Manager(int label);

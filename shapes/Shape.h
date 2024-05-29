@@ -21,8 +21,8 @@ typedef struct _Shape Shape;
 typedef bool (*fptrOverlap)(Shape *const, Shape *const);
 typedef double (*fptrCenterX)(Shape *const);
 typedef double (*fptrCenterY)(Shape *const);
-typedef void (*fptrUpdateCenterX)(Shape *const, int);
-typedef void (*fptrUpdateCenterY)(Shape *const, int);
+typedef void (*fptrUpdateCenterX)(Shape *const, double);
+typedef void (*fptrUpdateCenterY)(Shape *const, double);
 typedef void (*fptrDrawHitbox)(Shape *const);
 typedef ShapeType (*fptrGetType)();
 struct _Shape

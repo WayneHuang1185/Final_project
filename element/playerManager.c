@@ -8,6 +8,7 @@
 Elements *New_player_Manager(int label)
 {   PlayerManager *pDerivedObj = (PlayerManager*)malloc(sizeof(PlayerManager));
     Elements *Obj = New_Elements(label);
+    pDerivedObj->pl_x=pDerivedObj->pl_y=0;
     pDerivedObj->store_exp=0;
     Obj->pDerivedObj= pDerivedObj;
     Obj->inter_obj[Obj->inter_len++] = Player_L;
@@ -37,8 +38,20 @@ void playerManager_destory(Elements *const ele)
     hpMax,
     mpMax,
     expMax*/
-
- 
+/*
+stage1:                 stage2:             stage3:              stage4:              stage5:   
+id: 0   1   2   3       id: 0   1   2   3   id: 0   1   2   3    id: 0   1   2   3    id: 0   1   2   3  
+num: 1   0   0   0     num: 1   1   0   0  num: 1   1   1   0   num: 2   2   3   0   num: 0   0   0   1                            
+*/
+/*
+const int player_save_area=100;
+const int monster_produce_area=800;
+const int MAXIMUM_STAGE=5;
+const int MAXIMUM_MONSTER=10;
+typedef struct _monStage{
+  double locatoin[4][MAXIMUM_MONSTER][MAXIMUM_MONSTER];
+  
+}monStage;*/
 void playerManager_interact(Elements *const self, Elements *const target) {
     int skill_data[10][8]={ 
         {5,4,3,3,2,2,2,2},//spGain
@@ -55,6 +68,7 @@ void playerManager_interact(Elements *const self, Elements *const target) {
     PlayerManager *pm=((PlayerManager *)(self->pDerivedObj));
     if(target->label == Player_L){
         Player *pl=((Player*)(target->pDerivedObj));
+        pm->pl_x=pl->x,pm->pl_y=pl->y;
         if(pl->update_change){
             pl->move_speed=skill_data[moveSpeed][pl->skill_level[moveSpeed]];
             pl->bullet_speed=skill_data[bulletSpeed][pl->skill_level[bulletSpeed]];
@@ -84,7 +98,10 @@ void playerManager_interact(Elements *const self, Elements *const target) {
             pm->store_exp+=mon->exp;
         }
 
-    }   
+    }
+    else{
+
+    }
 }
 
 

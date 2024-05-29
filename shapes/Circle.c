@@ -19,7 +19,7 @@ Shape *New_Circle(double x, double y, double r)
     pObj->center_x = Circle_center_x;
     pObj->center_y = Circle_center_y;
     pObj->update_center_x = Circle_update_center_x;
-    pObj->update_center_y = Circle_update_center_y;\
+    pObj->update_center_y = Circle_update_center_y;
     pObj->draw_hitbox = Circle_draw_hitbox;
     pObj->getType = Circle_getType;
     pObj->pDerivedObj = pDerivedObj;
@@ -33,11 +33,11 @@ double Circle_center_y(Shape *const self)
 {
     return Circle_Self(self)->y;
 }
-void Circle_update_center_x(Shape *const self, int x)
+void Circle_update_center_x(Shape *const self, double x)
 {
     Circle_Self(self)->x += x;
 }
-void Circle_update_center_y(Shape *const self, int y)
+void Circle_update_center_y(Shape *const self, double y)
 {
     Circle_Self(self)->y += y;
 }

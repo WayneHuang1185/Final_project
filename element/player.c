@@ -22,9 +22,11 @@ Elements *New_Player(int label)
     Elements *pObj = New_Elements(label);
     
     // load Player images
-    pDerivedObj->img=al_load_bitmap("assets/image/player.png");
-    pDerivedObj->r=al_get_bitmap_width(pDerivedObj->img)/2;
-    
+    for(int i=0;i<10;i++)
+        pDerivedObj->skill_level[i]=0;
+    pDerivedObj->img[0]=al_load_bitmap("assets/image/player.png");
+    pDerivedObj->img[1]=al_load_bitmap("assets/image/player2.png");
+    pDerivedObj->r=al_get_bitmap_width(pDerivedObj->img[0])/2;
     // load effective sound
     ALLEGRO_SAMPLE *sample = al_load_sample("assets/sound/atk_sound.wav");
     pDerivedObj->atk_Sound = al_create_sample_instance(sample);
@@ -33,8 +35,8 @@ Elements *New_Player(int label)
     // load font
     pDerivedObj->font = al_load_ttf_font("assets/font/pirulen.ttf", text_size, 0);
     // initial the geometric information of Player
-    pDerivedObj->width = al_get_bitmap_width(pDerivedObj->img);
-    pDerivedObj->height = al_get_bitmap_height(pDerivedObj->img);    
+    pDerivedObj->width = al_get_bitmap_width(pDerivedObj->img[0]);
+    pDerivedObj->height = al_get_bitmap_height(pDerivedObj->img[0]);    
     pDerivedObj->x = 300, pDerivedObj->y = 300;
     pDerivedObj->hitbox = New_Circle( pDerivedObj->x, pDerivedObj->y, pDerivedObj->width/2);
 
@@ -56,9 +58,11 @@ Elements *New_Player(int label)
     pDerivedObj->hp_recovery=5;
     pDerivedObj->mp_recovery=5;
     pDerivedObj->exp=0;
-    pDerivedObj->sp=2;
-
+    pDerivedObj->sp=40;
+    pDerivedObj->hurt=false;
+    pDerivedObj->immortal=false;
     // initialise timers
+    pDerivedObj->timer_for_immortal=180;
     pDerivedObj->timer_for_mphp=100;
     pDerivedObj->timer_for_bullet=300;
     pDerivedObj->anime_time=0;
@@ -128,13 +132,20 @@ void _Player_sp_update(Elements *const ele){
 //50 200 115 50
 //200 50  75
 void Player_update(Elements *const ele)
-{    
+{   
     // use the idea of finite state machine to deal with different state
     Player *chara = ((Player *)(ele->pDerivedObj));    
+    printf("%d\n",chara->timer_for_immortal);
     if(chara->anime_time) chara->anime_time-=3;
     chara->timer_for_bullet+=5, chara->timer_for_mphp+=5;
+    if(chara->immortal && chara->timer_for_immortal>0)
+        chara->timer_for_immortal-=1;
+    else if(chara->timer_for_immortal == 0){
+        chara->timer_for_immortal=180;
+        chara->immortal=false;
+    }
     double origin_x=chara->x,origin_y=chara->y;
-    
+
     if (chara->atk_state == p_FIRE && chara->timer_for_bullet >= chara->bullet_reload && chara->mp >= chara->bullet_damage){
         double mx=mouse.x,my=mouse.y;
         double r = 0.075;
@@ -152,7 +163,7 @@ void Player_update(Elements *const ele)
     if (key_state[ALLEGRO_KEY_D]) _Player_update_position(ele, chara->move_speed, 0);
     if (key_state[ALLEGRO_KEY_W]) _Player_update_position(ele, 0, -chara->move_speed);
     if (key_state[ALLEGRO_KEY_S]) _Player_update_position(ele, 0, chara->move_speed);
-    if (chara->x - origin_x != 0 && chara->y - origin_y != 0) _Player_update_position(ele, (int)(origin_x-chara->x)/2, (int)(origin_y-chara->y)/2);
+    if (chara->x - origin_x != 0 && chara->y - origin_y != 0) _Player_update_position(ele, (origin_x-chara->x)/2, (origin_y-chara->y)/2);
     
     chara->angle=atan2(mouse.y-chara->y,mouse.x-chara->x);
     if (key_state[ALLEGRO_KEY_SPACE] || mouse_state[1]) chara->atk_state = p_FIRE;
@@ -195,6 +206,7 @@ int hardColor[8][3] =
     {223, 122, 177}};
 int baseColor[3] = {172, 231, 232};
 const int flash_region=200;
+const int immortal_consumpution=300;
 int distance(int x, int y){
 
     return x*x+y*y;
@@ -215,6 +227,12 @@ void _Player_super_power(Elements *const ele){
           _Player_update_position(ele,dx,dy);
        }
     }
+    if(key_state[ALLEGRO_KEY_G]){
+        if(chara->mp>=immortal_consumpution && !chara->immortal){
+            chara->mp-=immortal_consumpution;
+            chara->immortal=true;
+        }
+    }
 }
 void Player_draw(Elements *const ele)
     {
@@ -223,7 +241,8 @@ void Player_draw(Elements *const ele)
         _Player_super_power(ele);
         Player *Obj = ((Player *)(ele->pDerivedObj));
         int w = al_get_text_width(Obj->font, Obj->name)/ 2+5;
-        al_draw_rotated_bitmap(Obj->img,Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
+        al_draw_rotated_bitmap(Obj->img[Obj->hurt],Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
+        al_draw_rotated_bitmap(Obj->img[Obj->hurt],Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
         al_draw_text(Obj->font, al_map_rgb(255,255,255),Obj->x, Obj->y-Obj->height/2, ALLEGRO_ALIGN_CENTRE, Obj->name);
         char tmp[50];
         if(Obj->show_information || Obj->show_information_permanent){
@@ -249,7 +268,8 @@ void Player_destory(Elements *const ele)
 {
     Player *Obj = ((Player *)(ele->pDerivedObj));
     al_destroy_sample_instance(Obj->atk_Sound);
-    al_destroy_bitmap(Obj->img);
+    for(int i=0;i<2;i++)
+        al_destroy_bitmap(Obj->img[i]);
     free(Obj->hitbox);
     free(Obj);
     free(ele);
@@ -258,7 +278,7 @@ void Player_destory(Elements *const ele)
 void _Player_update_position(Elements *const ele, double dx, double dy)
 {
     Player *chara = ((Player *)(ele->pDerivedObj));
-    chara->x += (int)dx, chara->y += (int)dy;
+    chara->x +=dx, chara->y += dy;
     Shape *hitbox = chara->hitbox;
     hitbox->update_center_x(hitbox, dx);
     hitbox->update_center_y(hitbox, dy);
@@ -266,15 +286,17 @@ void _Player_update_position(Elements *const ele, double dx, double dy)
 
 void Player_interact(Elements *const self, Elements *const target) {
     Player *pl=((Player*)(self->pDerivedObj));
+
     if(target->label == Monster_L){
         Monster *mon=((Monster*)(target->pDerivedObj));
-        if(mon->hitbox->overlap(mon->hitbox,pl->hitbox) && mon->atk_timer>=mon->atk_frequency){
+        if(!pl->immortal && mon->hitbox->overlap(mon->hitbox,pl->hitbox) && mon->atk_timer>=mon->atk_frequency){
             if(pl->hp>mon->damage) pl->hp-=mon->damage;
             else self->dele=true;
             mon->atk_timer%=mon->atk_frequency;
             pl->timer_for_mphp=0;
         }
     }
+
 }
 
 

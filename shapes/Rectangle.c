@@ -33,12 +33,12 @@ double Rectangle_center_y(Shape *const self)
 {
 	return (Rectangle_Self(self)->y1 + Rectangle_Self(self)->y2) / 2;
 }
-void Rectangle_update_center_x(Shape *const self, int x)
+void Rectangle_update_center_x(Shape *const self, double x)
 {
 	Rectangle_Self(self)->x1 += x;
 	Rectangle_Self(self)->x2 += x;
 }
-void Rectangle_update_center_y(Shape *const self, int y)
+void Rectangle_update_center_y(Shape *const self, double y)
 {
 	Rectangle_Self(self)->y1 += y;
 	Rectangle_Self(self)->y2 += y;

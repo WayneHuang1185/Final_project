@@ -58,8 +58,11 @@ typedef struct _Player
     int anime_time;
     int timer_for_bullet;
     int timer_for_mphp;
+    int timer_for_immortal;
     int total_timer;
     int r; // the width and height of image
+    bool immortal;
+    bool hurt;
     bool dir;    
     bool update_change;
     bool show_information;
@@ -70,7 +73,7 @@ typedef struct _Player
     int new_shot;
     int anime;      // counting the time of animation
     Shape *hitbox; // the hitbox of object
-    ALLEGRO_BITMAP* img; // gif for each state. 0: stop, 1: move, 2:attack
+    ALLEGRO_BITMAP* img[2]; // gif for each state. 0: stop, 1: move, 2:attack
     ALLEGRO_SAMPLE_INSTANCE *atk_Sound;
     ALLEGRO_FONT* font;
 } Player;

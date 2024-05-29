@@ -25,7 +25,7 @@ typedef enum EleType
     PlayerManager_L
 }EleType;
 typedef struct _GameScene
-{
+{   
     ALLEGRO_BITMAP *background;
 
 } GameScene;
