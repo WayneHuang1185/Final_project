@@ -98,7 +98,7 @@ void game_init(Game *game)
     game->display = al_create_display(WIDTH, HEIGHT);
     GAME_ASSERT(game->display, "failed to create display.");
     // Create first scene
-    create_scene(Menu_L);
+    create_scene(Menu_L,0);
     // create event queue
     event_queue = al_create_event_queue();
     GAME_ASSERT(event_queue, "failed to create event queue.");
@@ -126,10 +126,16 @@ bool game_update(Game *game)
         switch (window)
         {
         case 0:
-            create_scene(Menu_L);
+            create_scene(Menu_L,0);
             break;
         case 1:
-            create_scene(GameScene_L);
+            create_scene(GameScene_L,0);
+            break;
+        case 2:
+            create_scene(GameEnd_L,0);
+            break;
+        case 3:
+            create_scene(GameEnd_L,1);
             break;
         case -1:
             return false;

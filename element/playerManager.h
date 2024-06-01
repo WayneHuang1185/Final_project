@@ -10,6 +10,9 @@
 typedef struct _PlayerManager
 { double pl_x, pl_y;
   int store_exp;
+  bool update_stage;
+  int stage;
+  int total_monster;
 } PlayerManager;
 Elements *New_player_Manager(int label);
 void playerManager_update(Elements *const self);

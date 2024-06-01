@@ -8,7 +8,7 @@
 #include <allegro5/allegro_primitives.h>
 #include<math.h>
 /*----------------------------------------------------------------------------------------------------------------
-速度型怪物: id:0, hp:50, hp_recovery:5, move_speed:5, damage:30, atk_frequency:50, recover:200, exp:300
+速度型怪物: id:0, hp:50 , hp_recovery:5, move_speed:3.5, damage:0, atk_frequency:50, recover:200, exp:300
 ------------------------------------------------------------------------------------------------------------------
 坦克怪物 :  id:1, hp:500, hp_recovery:20, move_speed:1, damage:50, atk_frequency:200, recover:300, exp:500
 ------------------------------------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ double basicInfo[4][7]={
     {2000, 100, 6, 100, 150, 250, 1500}
 };
 const int mon_scaled=70;
-Elements *New_Monster(int label, int id){
+Elements *New_Monster(int label, int id, double x, double y){
 
     // setting derived object member
     Monster *pDerivedObj = (Monster *)malloc(sizeof(Monster));
@@ -42,8 +42,8 @@ Elements *New_Monster(int label, int id){
     // random position and hitbox setting
     // pDerivedObj->x = rand()%300+100, pDerivedObj->y = rand()%300+100;
     pDerivedObj->id=id;
-    pDerivedObj->x = 200;
-    pDerivedObj->y = 200;
+    pDerivedObj->x = x;
+    pDerivedObj->y = y;
     pDerivedObj->hitbox = New_Rectangle(pDerivedObj->x-mon_scaled/2, pDerivedObj->y-mon_scaled/2,
                                         pDerivedObj->x+mon_scaled/2, pDerivedObj->y+mon_scaled/2);
     

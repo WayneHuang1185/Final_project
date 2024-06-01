@@ -6,9 +6,9 @@
 #include "bullet.h"
 #include "monster.h"
 #include <allegro5/allegro_primitives.h>
-#include<math.h>
-#include<stdio.h>
-#include<string.h>
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
 /*
    [Player function]
 */
@@ -28,7 +28,7 @@ Elements *New_Player(int label)
     pDerivedObj->img[1]=al_load_bitmap("assets/image/player2.png");
     pDerivedObj->r=al_get_bitmap_width(pDerivedObj->img[0])/2;
     // load effective sound
-    ALLEGRO_SAMPLE *sample = al_load_sample("assets/sound/atk_sound.wav");
+    ALLEGRO_SAMPLE *sample = al_load_sample("assets/sound/shot.wav");
     pDerivedObj->atk_Sound = al_create_sample_instance(sample);
     al_set_sample_instance_playmode(pDerivedObj->atk_Sound, ALLEGRO_PLAYMODE_ONCE);
     al_attach_sample_instance_to_mixer(pDerivedObj->atk_Sound, al_get_default_mixer());
@@ -37,7 +37,7 @@ Elements *New_Player(int label)
     // initial the geometric information of Player
     pDerivedObj->width = al_get_bitmap_width(pDerivedObj->img[0]);
     pDerivedObj->height = al_get_bitmap_height(pDerivedObj->img[0]);    
-    pDerivedObj->x = 300, pDerivedObj->y = 300;
+    pDerivedObj->x = HEIGHT/2, pDerivedObj->y = WIDTH/2;
     pDerivedObj->hitbox = New_Circle( pDerivedObj->x, pDerivedObj->y, pDerivedObj->width/2);
 
     memset(pDerivedObj->skill_level, 0, sizeof(pDerivedObj->skill_level));
@@ -125,17 +125,34 @@ void _Player_sp_update(Elements *const ele){
     if(chara->sp > 0 && chara->anime_time == 0){
         chara->update_change=false;
         for(int i = 0; i < 8; i++)
-            if(key_state[ALLEGRO_KEY_1 + i] && chara->skill_level[i+1] < 8)
+            if(key_state[ALLEGRO_KEY_1 + i] && chara->skill_level[i+1] < 7)
                 chara->skill_level[i+1]++, chara->sp--, chara->anime_time=60,chara->update_change=true;
     }
 }
+
 //50 200 115 50
 //200 50  75
 void Player_update(Elements *const ele)
 {   
     // use the idea of finite state machine to deal with different state
     Player *chara = ((Player *)(ele->pDerivedObj));    
-    printf("%d\n",chara->timer_for_immortal);
+    //printf("%d\n",chara->timer_for_immortal);
+    if(chara->x<=0){
+        chara->hitbox->update_center_x(chara->hitbox,(0 - chara->x));
+        chara->x=0;
+    }
+    else if(chara->x>=WIDTH){
+        chara->hitbox->update_center_x(chara->hitbox,(WIDTH- chara->x));
+        chara->x=WIDTH;
+    }
+    if(chara->y<=0){
+        chara->hitbox->update_center_y(chara->hitbox,(0 - chara->y));
+        chara->y=0;
+    }
+    else if(chara->y>=HEIGHT){
+        chara->hitbox->update_center_y(chara->hitbox,(HEIGHT- chara->y));
+        chara->y=HEIGHT;
+    }
     if(chara->anime_time) chara->anime_time-=3;
     chara->timer_for_bullet+=5, chara->timer_for_mphp+=5;
     if(chara->immortal && chara->timer_for_immortal>0)
@@ -154,6 +171,7 @@ void Player_update(Elements *const ele)
         bullet=New_Bullet(Bullet_L,chara->x+chara->r*cos(angle),chara->y+chara->r*sin(angle),angle,chara->bullet_speed,chara->bullet_damage);
         _Player_update_position(ele, -chara->bullet_speed * cos(angle) , -chara->bullet_speed  * sin(angle));
         _Register_elements(scene,bullet);
+        al_play_sample_instance(chara->atk_Sound);
         chara->timer_for_bullet%=chara->bullet_reload;
         chara->mp-=chara->bullet_mp_consumption;
     }
@@ -233,6 +251,7 @@ void _Player_super_power(Elements *const ele){
             chara->immortal=true;
         }
     }
+    
 }
 void Player_draw(Elements *const ele)
     {
@@ -241,8 +260,13 @@ void Player_draw(Elements *const ele)
         _Player_super_power(ele);
         Player *Obj = ((Player *)(ele->pDerivedObj));
         int w = al_get_text_width(Obj->font, Obj->name)/ 2+5;
-        al_draw_rotated_bitmap(Obj->img[Obj->hurt],Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
-        al_draw_rotated_bitmap(Obj->img[Obj->hurt],Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
+      
+        if(Obj->immortal)
+            al_draw_tinted_rotated_bitmap(Obj->img[0],al_map_rgba(143, 225, 79, 200),
+        Obj->width/2,Obj->height/2,Obj->x,Obj->y, Obj->angle+2.355, 0);
+        else{
+            al_draw_rotated_bitmap(Obj->img[Obj->hurt],Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
+        }
         al_draw_text(Obj->font, al_map_rgb(255,255,255),Obj->x, Obj->y-Obj->height/2, ALLEGRO_ALIGN_CENTRE, Obj->name);
         char tmp[50];
         if(Obj->show_information || Obj->show_information_permanent){
@@ -291,7 +315,7 @@ void Player_interact(Elements *const self, Elements *const target) {
         Monster *mon=((Monster*)(target->pDerivedObj));
         if(!pl->immortal && mon->hitbox->overlap(mon->hitbox,pl->hitbox) && mon->atk_timer>=mon->atk_frequency){
             if(pl->hp>mon->damage) pl->hp-=mon->damage;
-            else self->dele=true;
+            else{self->dele=true;scene->scene_end=true;window=3;}
             mon->atk_timer%=mon->atk_frequency;
             pl->timer_for_mphp=0;
         }

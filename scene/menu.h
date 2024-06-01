@@ -1,6 +1,7 @@
 #ifndef MENU_H_INCLUDED
 #define MENU_H_INCLUDED
 #include "scene.h"
+#include"../Shapes/Shape.h"
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_font.h>
@@ -9,10 +10,11 @@
    [Menu object]
 */
 typedef struct _Menu
-{
+{   
     ALLEGRO_FONT *font;
     ALLEGRO_SAMPLE *song;
     ALLEGRO_SAMPLE_INSTANCE *sample_instance;
+    Shape *hitbox;
     int title_x, title_y;
 } Menu;
 Scene *New_Menu(int label);

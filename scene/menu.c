@@ -1,5 +1,8 @@
 #include <allegro5/allegro_primitives.h>
 #include "menu.h"
+#include "../Shapes/Point.h"
+#include "../Shapes/Rectangle.h"
+
 /*
    [Menu function]
 */
@@ -21,16 +24,18 @@ Scene *New_Menu(int label)
     al_attach_sample_instance_to_mixer(pDerivedObj->sample_instance, al_get_default_mixer());
     // set the volume of instance
     al_set_sample_instance_gain(pDerivedObj->sample_instance, 0.1);
+    
     pObj->pDerivedObj = pDerivedObj;
     // setting derived object function
     pObj->Update = menu_update;
     pObj->Draw = menu_draw;
     pObj->Destroy = menu_destroy;
+    
     return pObj;
 }
 void menu_update(Scene *const pMenuObj)
 {
-    if (key_state[ALLEGRO_KEY_ENTER])
+    if (key_state[ALLEGRO_KEY_ENTER] || mouse_state[1])
     {
         pMenuObj->scene_end = true;
         window = 1;
@@ -40,7 +45,7 @@ void menu_update(Scene *const pMenuObj)
 void menu_draw(Scene *const pMenuObj)
 {
     Menu *Obj = ((Menu *)(pMenuObj->pDerivedObj));
-    al_draw_text(Obj->font, al_map_rgb(255, 255, 255), Obj->title_x, Obj->title_y, ALLEGRO_ALIGN_CENTRE, "Press 'Enter' to start");
+    al_draw_text(Obj->font, al_map_rgb(255, 255, 255), Obj->title_x, Obj->title_y, ALLEGRO_ALIGN_CENTRE, "Click Here To Enter");
     al_draw_rectangle(Obj->title_x - 150, Obj->title_y - 30, Obj->title_x + 150, Obj->title_y + 30, al_map_rgb(255, 255, 255), 0);
     al_play_sample_instance(Obj->sample_instance);
 }

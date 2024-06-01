@@ -12,7 +12,7 @@ typedef struct _Monster
 {
     double x, y;
     int id;
-    int move_speed;
+    double move_speed;
     int hp;  
     int hp_max;
     int atk_timer;
@@ -29,7 +29,7 @@ typedef struct _Monster
         // the position of image
     Shape *hitbox; // the hitbox of object
 } Monster;
-Elements *New_Monster(int label,int id);
+Elements *New_Monster(int label,int id,double x, double y);
 void Monster_update(Elements *const ele);
 void Monster_interact(Elements *const, Elements *const);
 void Monster_draw(Elements *const ele);
