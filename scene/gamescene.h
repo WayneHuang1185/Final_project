@@ -2,11 +2,10 @@
 #define GAMESCENE_H_INCLUDED
 #include "scene.h"
 #include "../element/element.h"
-#include "../element/charater.h"
-#include "../element/floor.h"
-#include "../element/teleport.h"
-#include "../element/tree.h"
-#include "../element/projectile.h"
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 /*
    [game scene object]
 */
@@ -26,7 +25,10 @@ typedef enum EleType
 }EleType;
 typedef struct _GameScene
 {   
+    double Title_x, Title_y;
+    ALLEGRO_FONT *font;
     ALLEGRO_BITMAP *background;
+    
 
 } GameScene;
 Scene *New_GameScene(int label);

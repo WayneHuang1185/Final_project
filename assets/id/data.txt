@@ -1,0 +1,8 @@
+moveSpeed 0
+bulletSpeed 4
+bulletDamage 0
+bulletReload 5
+hpRecovery 0
+mpRecovery 0
+hpMax 0
+mpMax 0

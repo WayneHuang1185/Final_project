@@ -25,5 +25,8 @@ extern ALLEGRO_EVENT_QUEUE *event_queue;
 extern ALLEGRO_EVENT event;
 extern ALLEGRO_TIMER *fps;
 extern bool debug_mode;
+extern int player_skill_level[10];
+extern char skill[10][20];
+extern int monster_stage;
 
 #endif

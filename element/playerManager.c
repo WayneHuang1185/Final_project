@@ -1,6 +1,7 @@
 #include "playerManager.h"
 #include "../scene/sceneManager.h"
 #include<time.h>
+#include"../global.h"
 /*
    [player_Manager function]
 */
@@ -11,8 +12,9 @@ Elements *New_player_Manager(int label)
     Elements *Obj = New_Elements(label);
     srand(time(NULL));
     pDerivedObj->update_stage=true;
+    pDerivedObj->save=false;
     pDerivedObj->total_monster=0;
-    pDerivedObj->stage=0;
+    pDerivedObj->stage=monster_stage;
     pDerivedObj->pl_x=pDerivedObj->pl_y=0;
     pDerivedObj->store_exp=0;
     Obj->pDerivedObj= pDerivedObj;
@@ -46,11 +48,10 @@ id: 0   1   2   3       id: 0   1   2   3   id: 0   1   2   3    id: 0   1   2  
 num: 1   0   0   0     num: 1   1   0   0  num: 1   1   1   0   num: 2   2   3   0   num: 0   0   0   1                            
 */
 
-const int player_save_area=100;
+const int player_save_area=900;
 const int monster_produce_area=800;
-const int MAXIMUM_STAGE=5;
+const int MAXIMUM_STAGE=3;
 const int MAXIMUM_MONSTER=10;
-
 typedef struct{
   double x, y;
 }Location;
@@ -65,7 +66,7 @@ int stage[5][4][1]={
 void playerManager_update(Elements *const ele)
 {   
     PlayerManager*pm=(PlayerManager*)(ele->pDerivedObj);
-    printf("%d\n",window);
+    //printf("%d\n",window);
     if(pm->update_stage){
         int num;
         for(int i=0;i<4;i++){
@@ -79,15 +80,16 @@ void playerManager_update(Elements *const ele)
         }
         pm->update_stage=false;
     }
-    if(pm->total_monster <= 0){
-        if(pm->stage<MAXIMUM_STAGE-1){
-            pm->update_stage=true;
+    if(pm->total_monster <= 0 && pm->save){
+        if(pm->stage<MAXIMUM_STAGE-1 ){
             pm->stage+=1;
+            monster_stage=pm->stage;
         }
         else{
             scene->scene_end=true;
             window=2;
         }
+        pm->save=false;
     }
     
     
@@ -109,7 +111,10 @@ void playerManager_interact(Elements *const self, Elements *const target) {
     if(target->label == Player_L){
         Player *pl=((Player*)(target->pDerivedObj));
         pm->pl_x=pl->x,pm->pl_y=pl->y;
+        if(pl->initialised) pl->initialised=false;
         if(pl->update_change){
+            for(int i = 1; i <= 8; i++)
+                player_skill_level[i] = pl->skill_level[i];
             pl->move_speed=skill_data[moveSpeed][pl->skill_level[moveSpeed]];
             pl->bullet_speed=skill_data[bulletSpeed][pl->skill_level[bulletSpeed]];
             pl->bullet_damage=skill_data[bulletDamage][pl->skill_level[bulletDamage]];

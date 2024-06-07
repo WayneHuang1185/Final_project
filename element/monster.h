@@ -17,6 +17,7 @@ typedef struct _Monster
     int hp_max;
     int atk_timer;
     bool hurt;
+    int exploded_timer;
     int hurt_timer;
     int recovery;
     int hp_timer;
@@ -25,6 +26,8 @@ typedef struct _Monster
     int width,height;
     int damage;
     int exp;
+    bool touch;
+    void *property;
     ALLEGRO_BITMAP *img[2];
         // the position of image
     Shape *hitbox; // the hitbox of object

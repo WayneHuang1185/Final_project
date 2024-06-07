@@ -61,12 +61,15 @@ typedef struct _Player
     int timer_for_immortal;
     int total_timer;
     int r; // the width and height of image
+    
     bool immortal;
     bool hurt;
     bool dir;    
     bool update_change;
     bool show_information;
     bool show_information_permanent;
+    bool dizz;
+    bool initialised;
     double angle;    
     int wlk_state;  
     int atk_state;      // the state of Player

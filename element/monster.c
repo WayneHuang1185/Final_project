@@ -1,4 +1,5 @@
 #include"monster.h"
+#include"monster_property.h"
 #include"bullet.h"
 #include"player.h"
 #include"../global.h"
@@ -55,16 +56,18 @@ Elements *New_Monster(int label, int id, double x, double y){
     pDerivedObj->atk_frequency=basicInfo[id][4];
     pDerivedObj->recovery=basicInfo[id][5];
     pDerivedObj->exp=basicInfo[id][6];
-    
+    pDerivedObj->touch=false;
     // intitialise timers
     pDerivedObj->hurt=false;
     pDerivedObj->atk_timer=0;
     pDerivedObj->hp_timer=0;
     pDerivedObj->hurt_timer=0;
-    
+    pDerivedObj->exploded_timer=180;
+    //pDerivedObj->property=New_Monster_Property(id);
     // add interact objects
     pObj->inter_obj[pObj->inter_len++] = Bullet_L;
     pObj->inter_obj[pObj->inter_len++] = Player_L;
+    
 
     // setting derived object function
     pObj->pDerivedObj = pDerivedObj;
@@ -83,10 +86,23 @@ void _Monster_update_postion(Elements *const self,double dx, double dy){
     hitbox->update_center_x(hitbox, dx);
     hitbox->update_center_y(hitbox, dy);
 }
+void _Monster_super_power(Elements *const self){
+    Monster *mon= ((Monster *)(self->pDerivedObj));
+    int id=mon->id;
+    switch(id){
+        case 0:
+           
+        case 1:
+         
+        case 2:
+            break;
+        case 3:
+            break;
+    }
+}
 void Monster_update(Elements *const self)
 {   
     Monster *Obj = ((Monster*)(self->pDerivedObj));
-    
     Obj->hurt_timer=Obj->hurt_timer%32+1;
     Obj->recovery-=5;
     Obj->atk_timer+=5;
@@ -101,11 +117,15 @@ void Monster_interact(Elements *const self, Elements *const ele){
     if(ele->label == Player_L){
         Player *pl=((Player*)(ele->pDerivedObj));
         if((mon->x - pl->x)*(mon->x - pl->x) + (mon->y - pl->y)*(mon->y - pl->y) > 1600){
+            mon->touch=true;
             double r=0.3;
             double angle=atan2(pl->hitbox->center_y(pl->hitbox) - mon->hitbox->center_y(mon->hitbox), pl->hitbox->center_x(pl->hitbox) - mon->hitbox->center_x(mon->hitbox))+
             (double)(rand() % 200 - 100) / 50 * r;;
             double dx=mon->move_speed*cos(angle),dy=mon->move_speed*sin(angle);
             _Monster_update_postion(self,dx,dy);
+        }
+        else{
+            mon->touch=false;
         }
         if(mon->hitbox->overlap(mon->hitbox, pl->hitbox) && mon->hurt_timer % 31 == 0){pl->hurt = mon->hurt = true;mon->hurt_timer=1;}
         else if(mon->hurt_timer % 16 == 0) pl->hurt = mon->hurt = false;

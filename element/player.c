@@ -9,11 +9,12 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include"../global.h"
 /*
    [Player function]
 */
 const int text_size=10;
-const int text_sap=3;
+const int text_sap=12;
 Elements *New_Player(int label)
 {  
     
@@ -22,8 +23,9 @@ Elements *New_Player(int label)
     Elements *pObj = New_Elements(label);
     
     // load Player images
+    memset(pDerivedObj->skill_level, 0, sizeof(pDerivedObj->skill_level));
     for(int i=0;i<10;i++)
-        pDerivedObj->skill_level[i]=0;
+        pDerivedObj->skill_level[i]=player_skill_level[i];
     pDerivedObj->img[0]=al_load_bitmap("assets/image/player.png");
     pDerivedObj->img[1]=al_load_bitmap("assets/image/player2.png");
     pDerivedObj->r=al_get_bitmap_width(pDerivedObj->img[0])/2;
@@ -40,7 +42,6 @@ Elements *New_Player(int label)
     pDerivedObj->x = HEIGHT/2, pDerivedObj->y = WIDTH/2;
     pDerivedObj->hitbox = New_Circle( pDerivedObj->x, pDerivedObj->y, pDerivedObj->width/2);
 
-    memset(pDerivedObj->skill_level, 0, sizeof(pDerivedObj->skill_level));
     strcpy(pDerivedObj->name,"Wayne");
 
     // initialise properties
@@ -61,6 +62,7 @@ Elements *New_Player(int label)
     pDerivedObj->sp=40;
     pDerivedObj->hurt=false;
     pDerivedObj->immortal=false;
+    pDerivedObj->dizz=false;
     // initialise timers
     pDerivedObj->timer_for_immortal=180;
     pDerivedObj->timer_for_mphp=100;
@@ -69,8 +71,8 @@ Elements *New_Player(int label)
     pDerivedObj->total_timer=10000;
     pDerivedObj->show_information=false;
     pDerivedObj->show_information_permanent=true;
-    pDerivedObj->update_change=false;
-    
+    pDerivedObj->update_change=true;
+    pDerivedObj->initialised=true;
     // initial the animation component
     pObj->inter_obj[pObj->inter_len++] = Monster_L;
     pDerivedObj->wlk_state = p_STOP;
@@ -122,7 +124,7 @@ void _Player_mphp_recover(Elements *const ele)
 
 void _Player_sp_update(Elements *const ele){
     Player* chara=((Player*)(ele->pDerivedObj));
-    if(chara->sp > 0 && chara->anime_time == 0){
+    if(!chara->initialised && chara->sp > 0 && chara->anime_time == 0){
         chara->update_change=false;
         for(int i = 0; i < 8; i++)
             if(key_state[ALLEGRO_KEY_1 + i] && chara->skill_level[i+1] < 7)
@@ -203,16 +205,7 @@ void Player_update(Elements *const ele)
     _Player_super_power(ele);
 }
 
-char skill[10][20] = {
-    "moveSpeed",
-    "bulletSpeed",
-    "bulletDamage",
-    "bulletReload",
-    "hpRecovery",
-    "mpRecovery",
-    "hpMax",
-    "mpMax"
-};
+
 int hardColor[8][3] = 
     {{223, 122, 122},
     {223, 161, 122},
@@ -253,41 +246,38 @@ void _Player_super_power(Elements *const ele){
     }
     
 }
+
 void Player_draw(Elements *const ele)
-    {
-        int x_init = 20, y_init = HEIGHT-170;
-        // with the state, draw corresponding image
-        _Player_super_power(ele);
-        Player *Obj = ((Player *)(ele->pDerivedObj));
-        int w = al_get_text_width(Obj->font, Obj->name)/ 2+5;
-      
-        if(Obj->immortal)
-            al_draw_tinted_rotated_bitmap(Obj->img[0],al_map_rgba(143, 225, 79, 200),
-        Obj->width/2,Obj->height/2,Obj->x,Obj->y, Obj->angle+2.355, 0);
-        else{
-            al_draw_rotated_bitmap(Obj->img[Obj->hurt],Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
-        }
-        al_draw_text(Obj->font, al_map_rgb(255,255,255),Obj->x, Obj->y-Obj->height/2, ALLEGRO_ALIGN_CENTRE, Obj->name);
-        char tmp[50];
-        if(Obj->show_information || Obj->show_information_permanent){
-            al_draw_filled_rectangle(x_init-5, y_init-5, x_init+18*7+16+5, y_init + 22*7+15+5, al_map_rgba(0,0,0,80));
-            al_draw_filled_rectangle(x_init-5, y_init-5+300, x_init+18*7+16+5, y_init + 22*7+15+5+300, al_map_rgba(0,0,0,80));
-            for(int i = 0; i < 8; i++){
-                sprintf(tmp, "%s: %d", skill[i], Obj->skill_level[i+1]+1); 
-                al_draw_text(Obj->font, al_map_rgb(255,255,255), 0, (text_size+text_sap)*i, ALLEGRO_ALIGN_LEFT, tmp);
-                for(int j = 0; j < 8; j++){
-                    al_draw_filled_rectangle(x_init+18*i, y_init+22*j, x_init+18*i+16, y_init + 22*j+15, 
-                    i <= Obj -> skill_level[j+1] ? al_map_rgb(hardColor[j][0],hardColor[j][1],hardColor[j][2]) : 
-                    al_map_rgb(baseColor[0],baseColor[1],baseColor[2]));
-                }
-            }
-            sprintf(tmp,"mp:%d",Obj->mp);
-            al_draw_text(Obj->font,al_map_rgb(255,255,255),0,(text_size+text_sap)*9,ALLEGRO_ALIGN_LEFT,tmp);
-            sprintf(tmp,"hp:%d",Obj->hp);
-            al_draw_text(Obj->font,al_map_rgb(255,255,255),0,(text_size+text_sap)*8,ALLEGRO_ALIGN_LEFT,tmp);
-        }
-        Obj->hitbox->draw_hitbox(Obj->hitbox);
+{
+    int x_init = 150, y_init = HEIGHT-200;
+    // with the state, draw corresponding image
+    _Player_super_power(ele);
+    Player *Obj = ((Player *)(ele->pDerivedObj));
+    int w = al_get_text_width(Obj->font, Obj->name)/ 2+5;
+    
+    if(Obj->immortal)
+        al_draw_tinted_rotated_bitmap(Obj->img[0],al_map_rgba(143, 225, 79, 200),
+            Obj->width/2,Obj->height/2,Obj->x,Obj->y, Obj->angle+2.355, 0);
+    else{
+        al_draw_rotated_bitmap(Obj->img[Obj->hurt],Obj->width/2,Obj->height/2,Obj->x,Obj->y,Obj->angle+2.355,0);
     }
+    al_draw_text(Obj->font, al_map_rgb(255,255,255),Obj->x, Obj->y-Obj->height/2, ALLEGRO_ALIGN_CENTRE, Obj->name);
+    char tmp[50];
+    if(Obj->show_information || Obj->show_information_permanent){
+        al_draw_filled_rectangle(x_init-5, y_init-5, x_init+18*7+16+5, y_init + 22*7+15+5, al_map_rgba(0,0,0,80));
+        al_draw_filled_rectangle(x_init-5, y_init-5+300, x_init+18*7+16+5, y_init + 22*7+15+5+300, al_map_rgba(0,0,0,80));
+        for(int i = 0; i < 8; i++){
+            sprintf(tmp, "%s", skill[i]); 
+            al_draw_text(Obj->font, al_map_rgb(255,255,255), 20, y_init+22*i, ALLEGRO_ALIGN_LEFT, tmp);
+            for(int j = 0; j < 8; j++){
+                al_draw_filled_rectangle(x_init+18*i, y_init+22*j, x_init+18*i+16, y_init + 22*j+15, 
+                i <= Obj -> skill_level[j+1] ? al_map_rgb(hardColor[j][0],hardColor[j][1],hardColor[j][2]) : 
+                al_map_rgb(baseColor[0],baseColor[1],baseColor[2]));
+            }
+        }
+    }
+    Obj->hitbox->draw_hitbox(Obj->hitbox);
+}
 void Player_destory(Elements *const ele)
 {
     Player *Obj = ((Player *)(ele->pDerivedObj));

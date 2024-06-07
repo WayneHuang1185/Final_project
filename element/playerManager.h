@@ -11,6 +11,7 @@ typedef struct _PlayerManager
 { double pl_x, pl_y;
   int store_exp;
   bool update_stage;
+  bool save;
   int stage;
   int total_monster;
 } PlayerManager;
